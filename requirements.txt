@@ -1,0 +1,6 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+pydantic==2.9.2
+faker==30.8.2
+# Optional: only needed if you wire in a real LLM via LLM_PROVIDER_MODEL.
+# litellm==1.52.0

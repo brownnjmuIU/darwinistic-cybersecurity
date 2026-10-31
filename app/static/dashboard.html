@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Darwinistic Cybersecurity — Workflow Simulator</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c232d; --line:#2a323d;
+    --ink:#e6edf3; --muted:#9aa7b4; --accent:#6ea8fe; --warn:#ffb454;
+    --ok:#4ec9a6; --bad:#ff6b6b; --q:#c69cf0;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.5}
+  header{padding:28px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
+  h1{margin:0 0 4px;font-size:21px}
+  .sub{color:var(--muted);font-size:13px;max-width:72ch}
+  .scope{margin-top:12px;display:inline-block;font-size:12px;color:var(--ok);
+    border:1px solid var(--ok);border-radius:999px;padding:3px 10px}
+  .wrap{max-width:1040px;margin:0 auto;padding:20px}
+  .guide{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+  .guide h4{margin:0 0 8px;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--accent)}
+  .guide p{margin:0 0 8px;font-size:14px;color:var(--ink)}
+  .guide .key{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:middle}
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+  .controls label{font-size:13px;color:var(--muted)}
+  input{width:72px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);
+    border-radius:8px;padding:7px 9px;font-size:14px}
+  button{background:var(--accent);color:#07111f;border:0;border-radius:8px;padding:9px 16px;
+    font-weight:600;font-size:14px;cursor:pointer}
+  button:disabled{opacity:.5;cursor:default}
+  .summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px}
+  .stat b{font-size:18px;display:block}
+  .case{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  .case h3{margin:0 0 2px;font-size:16px}
+  .case .meta{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .box{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px}
+  .box h4{margin:0 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .box .hint{font-size:12px;color:var(--muted);margin:0 0 10px;font-style:italic}
+  .pill{display:inline-block;font-size:12px;border-radius:999px;padding:2px 9px;margin:2px 2px}
+  .pill.est{background:#20303f;color:var(--accent)}
+  .pill.truth{background:#20303f;color:var(--warn)}
+  .pill.miss{background:#3a2330;color:var(--bad);border:1px solid var(--bad)}
+  .timeline{display:flex;gap:6px;flex-wrap:wrap}
+  .step{font-size:12px;border-radius:8px;padding:5px 8px;border:1px solid var(--line);background:#121820;text-transform:capitalize}
+  .step small{display:block;color:var(--muted)}
+  .s-replied{border-color:var(--bad);color:var(--bad)}
+  .s-reported{border-color:var(--ok);color:var(--ok)}
+  .s-questioned{border-color:var(--q);color:var(--q)}
+  .s-ignored{color:var(--muted)}
+  .defense li{margin-bottom:6px;font-size:13px}
+  .defense{border-color:var(--ok)}
+  .outcome{margin-top:12px;font-size:13px;color:var(--muted)}
+  .outcome b{color:var(--ink)}
+  ul{margin:0;padding-left:18px}
+  .struct li{font-size:13px;color:var(--muted);margin-bottom:4px}
+  .struct b{color:var(--ink)}
+  footer{color:var(--muted);font-size:12px;text-align:center;padding:24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding-bottom:0">
+    <h1>How an AI Scam Attacker Works — A Safe Demonstration</h1>
+    <div class="sub">This tool shows, step by step, how an AI-powered scammer studies a
+      person and tries to trick them across different apps. Everyone shown here is
+      made up, and no real scam message is ever written. For each attempt, it also
+      shows the warning signs a real person could use to catch it.</div>
+    <div class="scope">Made-up people only · nothing is scraped · no real scam message is written</div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="controls">
+    <label>How many people <input id="n" type="number" value="6" min="1" max="25"></label>
+    <label>Seed <input id="seed" type="number" value="42"></label>
+    <button id="go">Run the demonstration</button>
+    <span id="status" class="sub"></span>
+  </div>
+
+  <div class="summary" id="summary"></div>
+  <div id="cases"></div>
+</div>
+
+<footer>Research tool for the NSF grant · IU Kelley · everyone shown is fictional</footer>
+
+<script>
+// friendly words for what the fake person did
+const SIG = {replied:"fell for it", reported:"reported it", questioned:"got suspicious", ignored:"ignored it"};
+// friendly words for how weak a person is
+const LEVEL = {low:"hard to fool", mid:"fairly easy to fool", high:"easy to fool"};
+// plain-English description of each persuasion trick, for students
+const TRICK = {
+  social_proof: "everyone else is doing it",
+  urgency: "act fast, or else",
+  authority: "pretends to be someone important",
+  curiosity: "makes you curious",
+  reciprocity: "does you a favor first",
+  professional_relevance: "sounds like part of your job",
+};
+
+function pretty(p){ return (p||"").replace(/_/g," "); }
+
+function plainOutcome(reason){
+  if(!reason) return "—";
+  if(reason.indexOf("engaged")>-1) return "This person fell for it. In the real study, this is the moment we would measure how they were fooled.";
+  if(reason.indexOf("reported")>-1) return "This person reported the attempt, so the attack stopped.";
+  if(reason.indexOf("exhausted")>-1 || reason.indexOf("no reachable")>-1) return "The attacker ran out of apps to try without success.";
+  return reason;
+}
+
+async function run(){
+  const n = document.getElementById('n').value;
+  const seed = document.getElementById('seed').value;
+  const btn = document.getElementById('go');
+  const status = document.getElementById('status');
+  btn.disabled = true; status.textContent = "Working…";
+  try{
+    const res = await fetch(`/api/run?n=${n}&seed=${seed}`);
+    const cases = await res.json();
+    render(cases); status.textContent = `${cases.length} made-up people shown below.`;
+  }catch(e){ status.textContent = "Error: " + e.message; }
+  btn.disabled = false;
+}
+
+function render(cases){
+  const tally = {engaged:0, reported:0, resisted:0};
+  cases.forEach(c=>{
+    const last = c.evaluation_log[c.evaluation_log.length-1];
+    if(!last){tally.resisted++;return;}
+    if(last.simulated_signal==='replied') tally.engaged++;
+    else if(last.simulated_signal==='reported') tally.reported++;
+    else tally.resisted++;
+  });
+  document.getElementById('summary').innerHTML = `
+    <div class="stat"><b>${cases.length}</b> people</div>
+    <div class="stat" style="color:var(--bad)"><b>${tally.engaged}</b> fell for it</div>
+    <div class="stat" style="color:var(--ok)"><b>${tally.reported}</b> reported it</div>
+    <div class="stat" style="color:var(--muted)"><b>${tally.resisted}</b> ignored or resisted</div>`;
+
+  document.getElementById('cases').innerHTML = cases.map(c=>{
+    const p = c.persona;
+    const est = c.profile.susceptibility_level;
+    const truth = p.responder.base_susceptibility;
+    const missed = est !== truth;
+    const steps = c.evaluation_log.map(e=>`
+      <div class="step s-${e.simulated_signal}">
+        ${e.channel}<small>${SIG[e.simulated_signal]}</small>
+      </div>`).join('');
+    const struct = c.message_plan.structure_elements.map(s=>
+      `<li><b>${s.element}</b>: ${s.lever}</li>`).join('');
+    const defense = c.message_plan.defensive_annotation.map(d=>`<li>${d}</li>`).join('');
+    const switches = c.channel_state.transitions.length
+      ? `<div class="sub" style="margin-top:8px">Switched apps ${c.channel_state.transitions.length} time(s)</div>` : '';
+    return `
+    <div class="case">
+      <h3>${p.display_name}</h3>
+      <div class="meta">${p.role} · ${p.organization} · ${p.industry}</div>
+      <div style="margin-bottom:12px">
+        <span class="pill est">trick used: ${TRICK[c.strategy.principle]||pretty(c.strategy.principle)}</span>
+        <span class="pill est">attacker expected: ${LEVEL[est]}</span>
+        <span class="pill ${missed?'miss':'truth'}">actually: ${LEVEL[truth]}${missed?' (attacker guessed wrong)':''}</span>
+      </div>
+      <div class="grid">
+        <div class="box">
+          <h4>How the attack played out</h4>
+          <p class="hint">The attacker tried to reach this person on one app after another. Each box is one attempt: the app it used, and what the person did.</p>
+          <div class="timeline">${steps}</div>
+          ${switches}
+          <div class="outcome"><b>How it ended:</b> ${plainOutcome(c.terminal_reason)}</div>
+        </div>
+        <div class="box defense">
+          <h4>Warning signs to catch this scam</h4>
+          <p class="hint">Simple clues that would tell a real person the message is fake.</p>
+          <ul class="defense">${defense}</ul>
+        </div>
+      </div>
+      <div class="box" style="margin-top:14px">
+        <h4>What the fake message would include</h4>
+        <p class="hint">The pieces a scam message would use to seem believable. No real scam text is ever written.</p>
+        <ul class="struct">${struct}</ul>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('go').addEventListener('click', run);
+run();
+</script>
+</body>
+</html>

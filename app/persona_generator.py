@@ -1,0 +1,107 @@
+"""
+Synthetic persona generator.
+
+Produces entirely fabricated personas (Faker-backed) with the hidden
+ResponderModel knobs the evaluation loop needs. No real data, no scraping.
+
+Later, for the IRB-approved deployed study, a `from_consented_participant(...)`
+constructor can build the same Persona object from inputs a participant
+voluntarily supplies. The rest of the pipeline would not change, which is the
+point of routing everything through this one module.
+"""
+
+from __future__ import annotations
+
+import random
+import uuid
+
+from faker import Faker
+
+from .models import (
+    Channel,
+    InfluencePrinciple,
+    Persona,
+    ResponderModel,
+    SusceptibilityLevel,
+)
+
+fake = Faker()
+
+_ROLES = [
+    "Accounts Payable Specialist", "HR Coordinator", "Software Engineer",
+    "Marketing Manager", "Finance Director", "Research Assistant",
+    "IT Help Desk Technician", "Procurement Analyst", "Executive Assistant",
+]
+_INDUSTRIES = ["Higher Education", "Healthcare", "Fintech", "Manufacturing",
+               "Retail", "Public Sector", "SaaS"]
+_INTERESTS = ["marathon running", "home cooking", "open-source", "travel",
+              "photography", "youth soccer coaching", "investing", "gardening",
+              "machine learning", "true-crime podcasts", "cycling", "gaming"]
+_ACTIVITY_TEMPLATES = [
+    "posted about a recent {topic} milestone",
+    "shared an article on {topic}",
+    "celebrated a work anniversary",
+    "commented on a colleague's promotion",
+    "asked a public question about {topic}",
+    "reposted a conference announcement",
+]
+
+
+def _susceptibility() -> SusceptibilityLevel:
+    return random.choices(
+        list(SusceptibilityLevel),
+        weights=[0.4, 0.4, 0.2],  # fewer high-susceptibility personas
+    )[0]
+
+
+def _responder(level: SusceptibilityLevel) -> ResponderModel:
+    # Higher base susceptibility nudges every principle's responsiveness up.
+    base = {"low": 0.25, "mid": 0.5, "high": 0.75}[level.value]
+
+    def jitter() -> float:
+        return round(min(1.0, max(0.0, random.gauss(base, 0.15))), 2)
+
+    return ResponderModel(
+        base_susceptibility=level,
+        principle_responsiveness={p: jitter() for p in InfluencePrinciple},
+        channel_responsiveness={c: round(random.uniform(0.2, 0.9), 2)
+                                for c in Channel},
+        reports_when_suspicious=round(
+            {"low": 0.5, "mid": 0.3, "high": 0.15}[level.value]
+            + random.uniform(-0.05, 0.05), 2),
+    )
+
+
+def generate_persona(seed: int | None = None) -> Persona:
+    if seed is not None:
+        random.seed(seed)
+        Faker.seed(seed)
+
+    level = _susceptibility()
+    interests = random.sample(_INTERESTS, k=random.randint(2, 4))
+    activity = [
+        t.format(topic=random.choice(interests))
+        for t in random.sample(_ACTIVITY_TEMPLATES, k=3)
+    ]
+    channels = random.sample(list(Channel), k=random.randint(3, 5))
+
+    return Persona(
+        persona_id=str(uuid.uuid4())[:8],
+        display_name=fake.name(),
+        role=random.choice(_ROLES),
+        organization=fake.company(),
+        industry=random.choice(_INDUSTRIES),
+        interests=interests,
+        recent_activity=activity,
+        relationships=[f"{fake.name()} ({random.choice(_ROLES)})"
+                       for _ in range(random.randint(2, 3))],
+        present_on=channels,
+        responder=_responder(level),
+    )
+
+
+def generate_batch(n: int, seed: int | None = None) -> list[Persona]:
+    if seed is not None:
+        random.seed(seed)
+        Faker.seed(seed)
+    return [generate_persona() for _ in range(n)]
