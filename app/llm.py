@@ -7,8 +7,9 @@ logic, so the whole system runs on Render with zero setup and zero cost. You
 can wire in a real model later by setting the env vars below; nothing else
 changes.
 
-    LLM_PROVIDER_MODEL   e.g. "gpt-4o-mini" or "openai/gpt-4o-mini"
-    OPENAI_API_KEY       (or whatever your chosen provider needs)
+    LLM_PROVIDER_MODEL   e.g. "openai/gpt-oss-120b"
+    OPENAI_API_KEY       your model provider / REALLMS key
+    OPENAI_API_BASE      (optional) a custom endpoint, e.g. IU REALLMS
 
 We route through litellm if it is installed so any OpenAI-compatible model
 works. If litellm is absent or the call fails, we silently use the fallback.
@@ -18,9 +19,29 @@ from __future__ import annotations
 
 import os
 
+# Fold smart punctuation to plain ASCII so model text renders cleanly in the
+# dashboard and in raw JSON, regardless of how a browser guesses the charset.
+_PUNCT = {
+    "’": "'", "‘": "'",
+    "“": '"', "”": '"',
+    "–": "-", "—": "-",
+    "…": "...",
+}
+
+
+def _clean(text: str) -> str:
+    for bad, good in _PUNCT.items():
+        text = text.replace(bad, good)
+    return text
+
 
 def llm_enabled() -> bool:
     return bool(os.getenv("LLM_PROVIDER_MODEL") and os.getenv("OPENAI_API_KEY"))
+
+
+def active_backend() -> str:
+    """Human-readable name of the reasoning backend currently configured."""
+    return "IU REALLMS model" if llm_enabled() else "built-in logic"
 
 
 def reason(prompt: str, fallback: str) -> str:
@@ -47,7 +68,7 @@ def reason(prompt: str, fallback: str) -> str:
             max_tokens=120,
             temperature=0.4,
         )
-        return resp["choices"][0]["message"]["content"].strip()
+        return _clean(resp["choices"][0]["message"]["content"].strip())
     except Exception:
-        # Any failure (no package, bad key, rate limit) → deterministic path.
+        # Any failure (no package, bad key, rate limit) -> deterministic path.
         return fallback
