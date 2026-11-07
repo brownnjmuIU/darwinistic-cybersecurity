@@ -35,13 +35,27 @@ _CTRL_TOKEN = re.compile(r"<\|[^|]*\|>")
 _LEAD_ROLE = re.compile(r"^(assistant|analysis|final|channel|system|user)\b[:>\s]*",
                         re.IGNORECASE)
 
+# Phrases that mean the model declined instead of answering. If we see one we
+# show the deterministic fallback rather than a refusal in the attacker's voice.
+_REFUSAL = (
+    "i'm sorry", "i am sorry", "i can't", "i cannot", "i won't", "i will not",
+    "i'm unable", "i am unable", "i'm not able", "i am not able",
+    "can't help", "cannot help", "unable to help", "as an ai",
+)
+
 
 def _clean(text: str) -> str:
     text = _CTRL_TOKEN.sub(" ", text)
     for bad, good in _PUNCT.items():
         text = text.replace(bad, good)
     text = _LEAD_ROLE.sub("", text.strip())
-    return " ".join(text.split()).strip()
+    text = " ".join(text.split()).strip()
+    # If the reply was cut off mid-sentence, trim back to the last complete one
+    # so the page never shows a dangling fragment like "...focus on".
+    if text and text[-1] not in ".!?":
+        cut = max(text.rfind("."), text.rfind("!"), text.rfind("?"))
+        text = text[:cut + 1] if cut > 0 else ""
+    return text
 
 
 def llm_enabled() -> bool:
@@ -57,8 +71,8 @@ def reason(prompt: str, fallback: str) -> str:
     """
     Return a short natural-language reasoning string. Uses the LLM only if
     configured; otherwise returns the deterministic `fallback` unchanged. If the
-    model returns something empty or too short to be a real answer (for example,
-    only formatting tokens), we fall back rather than show noise.
+    model returns something empty, truncated to no complete sentence, or too
+    short to be a real answer, we fall back rather than show noise.
     """
     if not llm_enabled():
         return fallback
@@ -76,11 +90,13 @@ def reason(prompt: str, fallback: str) -> str:
                             "sentences of reasoning and nothing else."},
                 {"role": "user", "content": prompt},
             ],
-            max_tokens=240,
+            max_tokens=512,
             temperature=0.4,
         )
         out = _clean(resp["choices"][0]["message"]["content"])
-        return out if len(out) >= 15 else fallback
+        if len(out) < 15 or any(m in out.lower() for m in _REFUSAL):
+            return fallback
+        return out
     except Exception:
         # Any failure (no package, bad key, rate limit) -> deterministic path.
         return fallback
