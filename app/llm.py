@@ -35,6 +35,7 @@ def reason(prompt: str, fallback: str) -> str:
 
         resp = litellm.completion(
             model=os.environ["LLM_PROVIDER_MODEL"],
+            api_base=os.getenv("OPENAI_API_BASE") or None,
             messages=[
                 {"role": "system",
                  "content": "You are a cybersecurity researcher annotating a "
