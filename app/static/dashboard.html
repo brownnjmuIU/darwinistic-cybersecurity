@@ -72,6 +72,7 @@
       made up, and no real scam message is ever written. For each attempt, it also
       shows the warning signs a real person could use to catch it.</div>
     <div class="scope">Made-up people only · nothing is scraped · no real scam message is written</div>
+    <div id="backend" class="scope" style="border-color:var(--accent);color:var(--accent);margin-left:8px">checking reasoning model…</div>
   </div>
 </header>
 
@@ -167,6 +168,12 @@ function render(cases){
         <span class="pill est">attacker expected: ${LEVEL[est]}</span>
         <span class="pill ${missed?'miss':'truth'}">actually: ${LEVEL[truth]}${missed?' (attacker guessed wrong)':''}</span>
       </div>
+      <div class="box" style="margin-bottom:12px">
+        <h4>The attacker's reasoning</h4>
+        <p class="hint">Written for this made-up person by whichever reasoning backend is active (shown at the top of the page).</p>
+        <p style="font-size:13px;margin:0 0 8px"><b>Read of the person:</b> ${c.profile.susceptibility_hypothesis}</p>
+        <p style="font-size:13px;margin:0"><b>Why this approach:</b> ${c.strategy.rationale}</p>
+      </div>
       <div class="grid">
         <div class="box">
           <h4>How the attack played out</h4>
@@ -190,7 +197,16 @@ function render(cases){
   }).join('');
 }
 
+async function setBackend(){
+  try{
+    const r = await fetch('/api/health');
+    const h = await r.json();
+    document.getElementById('backend').textContent = 'Reasoning by: ' + h.backend;
+  }catch(e){ /* leave the default text in place */ }
+}
+
 document.getElementById('go').addEventListener('click', run);
+setBackend();
 run();
 </script>
 </body>
