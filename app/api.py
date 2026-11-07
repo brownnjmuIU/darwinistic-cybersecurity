@@ -2,7 +2,7 @@
 FastAPI service.
 
   GET /                -> the dashboard page
-  GET /api/health      -> liveness check for Render
+  GET /api/health      -> liveness check for Render + which reasoning backend
   GET /api/run?n=5&seed=42 -> run the simulation, return the full traces as JSON
 
 This is what Render runs. Start command:
@@ -16,6 +16,7 @@ from pathlib import Path
 from fastapi import FastAPI
 from fastapi.responses import FileResponse, JSONResponse
 
+from .llm import active_backend
 from .orchestrator import run_batch
 
 app = FastAPI(title="Darwinistic Cybersecurity — Workflow Simulator")
@@ -25,7 +26,7 @@ _STATIC = Path(__file__).parent / "static"
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok"}
+    return {"status": "ok", "backend": active_backend()}
 
 
 @app.get("/api/run")
