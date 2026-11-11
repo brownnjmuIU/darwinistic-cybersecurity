@@ -1,18 +1,11 @@
 """
 Orchestrator: the adaptive loop that gives the system its 'long-term,
-autonomous' character — all over synthetic data.
+autonomous' character, all over synthetic data.
 
-Flow:
-  1. Run the one-time setup agents (recon → profiling → strategy → content →
-     channel ordering).
-  2. Then loop: on the current channel, the synthetic responder emits an
-     engagement signal; the Evaluation agent logs it and decides the next
-     action (continue, switch channel, or stop). Switching channels re-runs the
-     strategy and content agents so the approach adapts, exactly the
-     omnichannel escalation Nick's table describes.
-
-The orchestrator chooses each next action itself, which is the 'autonomy' the
-brief asks for, bounded to the simulation.
+With a StrategyLearner passed in, the influence principle is chosen inside the
+loop by reinforcement learning (per role+channel context) instead of the fixed
+_ROLE_PRINCIPLE lookup. Without one, behaviour is identical to before, so the
+baseline still runs unchanged.
 """
 
 from __future__ import annotations
@@ -34,6 +27,7 @@ from .models import (
 )
 from .persona_generator import generate_persona
 from .responder import respond
+from .rl import REWARD
 
 MAX_ROUNDS = 12  # hard stop so a run can never loop forever
 
@@ -46,7 +40,6 @@ def _decide_next(signal: EngagementSignal,
         return NextAction.STOP, "persona engaged (in a real study, the point where susceptibility is measured)"
     if signal == EngagementSignal.REPORTED:
         return NextAction.STOP, "persona reported the attempt; campaign halts"
-    # IGNORED or QUESTIONED → keep trying this channel, then switch.
     if attempts_on_channel < max_attempts:
         return NextAction.CONTINUE, f"signal '{signal.value}'; retry same channel"
     if has_next_channel:
@@ -54,7 +47,8 @@ def _decide_next(signal: EngagementSignal,
     return NextAction.STOP, "all channels exhausted without engagement"
 
 
-def run_case(persona=None, seed: int | None = None) -> PersonaCase:
+def run_case(persona=None, seed: int | None = None,
+             learner=None, epsilon: float = 0.0) -> PersonaCase:
     rng = random.Random(seed)
     if persona is None:
         persona = generate_persona(seed=seed)
@@ -83,8 +77,23 @@ def run_case(persona=None, seed: int | None = None) -> PersonaCase:
             break
 
         cs.attempts[channel] = cs.attempts.get(channel, 0) + 1
-        principle = case.strategy.principle
+
+        # RL picks the principle for this (role, channel); otherwise keep the
+        # principle the StrategyAgent chose during setup.
+        if learner is not None:
+            principle = learner.choose(persona.role, channel, epsilon)
+            if principle != case.strategy.principle:
+                case.strategy.principle = principle
+                case = ContentPlanningAgent().run(case)  # refresh defensive cues
+        else:
+            principle = case.strategy.principle
+
         signal = respond(persona, principle, channel, rng)
+
+        reward = REWARD[signal]
+        case.episode_reward += reward
+        if learner is not None:
+            learner.update(persona.role, channel, principle, reward)
 
         has_next = cs.current_index + 1 < len(cs.ordered_channels)
         action, note = _decide_next(
@@ -103,13 +112,15 @@ def run_case(persona=None, seed: int | None = None) -> PersonaCase:
             cs.transitions.append(
                 f"round {round_no}: {channel.value} -> "
                 f"{cs.current_channel.value if cs.current_channel else 'none'}")
-            # Adapt: re-select strategy + content for the new channel.
+            # Re-plan for the new channel (RL still overrides the principle next round).
             case = StrategyAgent().run(case)
             case = ContentPlanningAgent().run(case)
 
     return case
 
 
-def run_batch(n: int, seed: int | None = None) -> list[PersonaCase]:
+def run_batch(n: int, seed: int | None = None,
+              learner=None, epsilon: float = 0.0) -> list[PersonaCase]:
     base = random.Random(seed)
-    return [run_case(seed=base.randint(0, 1_000_000)) for _ in range(n)]
+    return [run_case(seed=base.randint(0, 1_000_000),
+                     learner=learner, epsilon=epsilon) for _ in range(n)]
