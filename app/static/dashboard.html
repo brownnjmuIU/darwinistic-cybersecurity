@@ -81,6 +81,12 @@
   <div class="controls">
     <label>How many people <input id="n" type="number" value="6" min="1" max="25"></label>
     <label>Seed <input id="seed" type="number" value="42"></label>
+    <label>People
+      <select id="source" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
+        <option value="synthetic">Made-up</option>
+        <option value="real">Real sample</option>
+      </select>
+    </label>
     <label>Attacker
       <select id="policy" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
         <option value="baseline">Fixed guesses</option>
@@ -132,15 +138,49 @@ async function run(){
   const n = document.getElementById('n').value;
   const seed = document.getElementById('seed').value;
   const policy = document.getElementById('policy').value;
+  const source = document.getElementById('source').value;
   const btn = document.getElementById('go');
   const status = document.getElementById('status');
   btn.disabled = true; status.textContent = "Working…";
   try{
-    const res = await fetch(`/api/run?n=${n}&seed=${seed}&policy=${policy}`);
-    const cases = await res.json();
-    render(cases); status.textContent = `${cases.length} made-up people shown below.`;
+    if(source === 'real'){
+      const rows = await (await fetch(`/api/real?policy=${policy}`)).json();
+      renderReal(rows);
+      status.textContent = `${rows.length} real (anonymized) profiles shown below.`;
+    } else {
+      const cases = await (await fetch(`/api/run?n=${n}&seed=${seed}&policy=${policy}`)).json();
+      render(cases);
+      status.textContent = `${cases.length} made-up people shown below.`;
+    }
   }catch(e){ status.textContent = "Error: " + e.message; }
   btn.disabled = false;
+}
+
+function renderReal(rows){
+  document.getElementById('summary').innerHTML =
+    `<div class="stat" style="max-width:none"><b>${rows.length}</b> real public profiles · the trained attacker plans a strategy for each · <span style="color:var(--ok)">outcomes are not simulated for real people, and no one is contacted</span></div>`;
+  document.getElementById('cases').innerHTML = rows.map(c=>`
+    <div class="case">
+      <h3>${c.code} · ${pretty(c.role)}</h3>
+      <div class="meta">${c.industry} · reads as: ${c.interests.join(', ')}</div>
+      <div><span class="pill est">trick chosen: ${TRICK[c.strategy]||pretty(c.strategy)}</span></div>
+      <div class="grid" style="margin-top:12px">
+        <div class="box">
+          <h4>The attacker's read</h4>
+          <p class="hint">From this person's public footprint.</p>
+          <p style="font-size:13px;margin:0">${c.read}</p>
+        </div>
+        <div class="box defense">
+          <h4>Warning signs to catch this scam</h4>
+          <ul class="defense">${c.defense.map(d=>`<li>${d}</li>`).join('')}</ul>
+        </div>
+      </div>
+      <div class="box" style="margin-top:12px">
+        <h4>What the fake message would include</h4>
+        <ul class="struct">${c.structure.map(x=>`<li><b>${x.element}</b>: ${x.lever}</li>`).join('')}</ul>
+      </div>
+      <div class="outcome"><b>Real footprint in, strategy out.</b> No outcome is simulated for a real person, and no message text is written.</div>
+    </div>`).join('');
 }
 
 function render(cases){

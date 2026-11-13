@@ -125,6 +125,18 @@ def generate_persona(seed: int | None = None) -> Persona:
     )
 
 
+def from_public_profile(code, role, organization, industry,
+                        interests, recent_activity, relationships,
+                        present_on) -> Persona:
+    channels = [Channel(c) for c in present_on]
+    return Persona(
+        persona_id=code, display_name=code, role=role,
+        organization=organization, industry=industry, interests=interests,
+        recent_activity=recent_activity, relationships=relationships,
+        present_on=channels, responder=_responder(SusceptibilityLevel.MID),
+    )
+
+
 def generate_batch(n: int, seed: int | None = None) -> list[Persona]:
     if seed is not None:
         random.seed(seed)
