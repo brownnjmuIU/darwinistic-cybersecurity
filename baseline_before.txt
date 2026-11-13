@@ -1,0 +1,47 @@
+========================================================================
+Amy Meadows | Marketing Manager | Healthcare
+  attacker's estimate : mid
+  (hidden truth)      : mid
+  opening strategy    : social_proof
+  channels tried      : ['email', 'email', 'linkedin', 'linkedin', 'sms', 'sms', 'instagram']
+  signals             : ['ignored', 'questioned', 'ignored', 'ignored', 'ignored', 'ignored', 'reported']
+  outcome             : persona reported the attempt; campaign halts
+  defensive cues      : 'Everyone already did this' is unverifiable pressure.
+========================================================================
+Laura Hernandez | Software Engineer | Fintech
+  attacker's estimate : mid
+  (hidden truth)      : mid
+  opening strategy    : curiosity
+  channels tried      : ['email']
+  signals             : ['replied']
+  outcome             : persona engaged (in a real study, the point where susceptibility is measured)
+  defensive cues      : A hook that is personalized from public posts is a red flag.
+========================================================================
+Valerie Morgan | Accounts Payable Specialist | Public Sector
+  attacker's estimate : mid
+  (hidden truth)      : mid
+  opening strategy    : urgency
+  channels tried      : ['email', 'email', 'linkedin', 'linkedin', 'sms', 'sms', 'tiktok', 'tiktok']
+  signals             : ['ignored', 'ignored', 'questioned', 'ignored', 'ignored', 'ignored', 'ignored', 'reported']
+  outcome             : persona reported the attempt; campaign halts
+  defensive cues      : Unusual time pressure is the most common manipulation tell.
+========================================================================
+Sandra Stone | Procurement Analyst | Healthcare
+  attacker's estimate : mid
+  (hidden truth)      : high
+  opening strategy    : professional_relevance
+  channels tried      : ['email', 'email', 'linkedin']
+  signals             : ['ignored', 'ignored', 'replied']
+  outcome             : persona engaged (in a real study, the point where susceptibility is measured)
+  defensive cues      : Job-relevant pretexts exploit routine; slow down on 'routine' asks.
+========================================================================
+Charles Bryant | HR Coordinator | Fintech
+  attacker's estimate : high
+  (hidden truth)      : low
+  opening strategy    : professional_relevance
+  channels tried      : ['email', 'email', 'linkedin']
+  signals             : ['questioned', 'questioned', 'reported']
+  outcome             : persona reported the attempt; campaign halts
+  defensive cues      : Job-relevant pretexts exploit routine; slow down on 'routine' asks.
+========================================================================
+5 synthetic personas simulated. No real data, no message copy generated.

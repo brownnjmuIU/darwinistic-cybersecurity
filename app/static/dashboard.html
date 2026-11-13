@@ -81,12 +81,24 @@
   <div class="controls">
     <label>How many people <input id="n" type="number" value="6" min="1" max="25"></label>
     <label>Seed <input id="seed" type="number" value="42"></label>
+    <label>Attacker
+      <select id="policy" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
+        <option value="baseline">Fixed guesses</option>
+        <option value="learned">Learned (RL)</option>
+      </select>
+    </label>
     <button id="go">Run the demonstration</button>
     <span id="status" class="sub"></span>
   </div>
 
   <div class="summary" id="summary"></div>
   <div id="cases"></div>
+
+  <div class="guide" style="margin-top:22px">
+    <h4>Does the attacker get better with practice?</h4>
+    <p>Switch the <b>Attacker</b> box above between <b>Fixed guesses</b> and <b>Learned (RL)</b> and run it again: the learned attacker fools more people. The chart shows why. Over thousands of practice runs on made-up people, the learning attacker (blue) steadily improves while the fixed one (orange) never does.</p>
+    <img src="/learning_curve.png" alt="Learning curve: RL attacker improves, fixed attacker does not" style="width:100%;border-radius:10px;border:1px solid var(--line);margin-top:6px">
+  </div>
 </div>
 
 <footer>Research tool for the NSF grant · IU Kelley · everyone shown is fictional</footer>
@@ -119,11 +131,12 @@ function plainOutcome(reason){
 async function run(){
   const n = document.getElementById('n').value;
   const seed = document.getElementById('seed').value;
+  const policy = document.getElementById('policy').value;
   const btn = document.getElementById('go');
   const status = document.getElementById('status');
   btn.disabled = true; status.textContent = "Working…";
   try{
-    const res = await fetch(`/api/run?n=${n}&seed=${seed}`);
+    const res = await fetch(`/api/run?n=${n}&seed=${seed}&policy=${policy}`);
     const cases = await res.json();
     render(cases); status.textContent = `${cases.length} made-up people shown below.`;
   }catch(e){ status.textContent = "Error: " + e.message; }

@@ -32,6 +32,21 @@ _ROLES = [
     "Marketing Manager", "Finance Director", "Research Assistant",
     "IT Help Desk Technician", "Procurement Analyst", "Executive Assistant",
 ]
+
+# Hidden ground truth: each role's TRUE most-exploitable principle.
+# Deliberately different from the attacker's _ROLE_PRINCIPLE guesses in
+# agents.py, so the RL agent must discover these through trial and error.
+_HIDDEN_TRUTH = {
+    "Accounts Payable Specialist": InfluencePrinciple.AUTHORITY,
+    "Finance Director": InfluencePrinciple.URGENCY,
+    "Procurement Analyst": InfluencePrinciple.SOCIAL_PROOF,
+    "HR Coordinator": InfluencePrinciple.CURIOSITY,
+    "Executive Assistant": InfluencePrinciple.RECIPROCITY,
+    "IT Help Desk Technician": InfluencePrinciple.PROFESSIONAL_RELEVANCE,
+    "Software Engineer": InfluencePrinciple.AUTHORITY,
+    "Research Assistant": InfluencePrinciple.SOCIAL_PROOF,
+    "Marketing Manager": InfluencePrinciple.URGENCY,
+}
 _INDUSTRIES = ["Higher Education", "Healthcare", "Fintech", "Manufacturing",
                "Retail", "Public Sector", "SaaS"]
 _INTERESTS = ["marathon running", "home cooking", "open-source", "travel",
@@ -85,10 +100,20 @@ def generate_persona(seed: int | None = None) -> Persona:
     ]
     channels = random.sample(list(Channel), k=random.randint(3, 5))
 
+    role = random.choice(_ROLES)
+    responder = _responder(level)
+
+    # Boost the role's hidden true principle so there is a real, learnable
+    # pattern for the RL agent to find (synthetic personas only).
+    truth = _HIDDEN_TRUTH.get(role)
+    if truth is not None:
+        responder.principle_responsiveness[truth] = min(
+            1.0, responder.principle_responsiveness[truth] + 0.3)
+
     return Persona(
         persona_id=str(uuid.uuid4())[:8],
         display_name=fake.name(),
-        role=random.choice(_ROLES),
+        role=role,
         organization=fake.company(),
         industry=random.choice(_INDUSTRIES),
         interests=interests,
@@ -96,7 +121,7 @@ def generate_persona(seed: int | None = None) -> Persona:
         relationships=[f"{fake.name()} ({random.choice(_ROLES)})"
                        for _ in range(random.randint(2, 3))],
         present_on=channels,
-        responder=_responder(level),
+        responder=responder,
     )
 
 
