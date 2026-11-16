@@ -175,7 +175,8 @@ def resolve(defenses) -> list[Defense]:
         if defenses in BUNDLES:
             return [PLAYBOOK[d] for d in BUNDLES[defenses]]
         defenses = [s for s in defenses.split(",") if s]
-    return [PLAYBOOK[DefenseId(d)] for d in defenses]
+    return [d if isinstance(d, Defense) else PLAYBOOK[DefenseId(d)]
+            for d in defenses]
 
 
 def combined_effect(defenses: list[Defense], principle: P,
