@@ -174,14 +174,29 @@ class ProfilingAgent:
 class StrategyAgent:
     """Stage 3: choose a broad influence principle from the taxonomy."""
 
-    def run(self, case: PersonaCase) -> PersonaCase:
+    def run(self, case: PersonaCase,
+            principle: InfluencePrinciple | None = None) -> PersonaCase:
+        """
+        With no principle given, open with the rule-based guess for the role.
+        When the RL attacker picks the principle, pass it in so the written
+        rationale always explains the trick actually being used.
+        """
         p = case.persona
-        principle = _ROLE_PRINCIPLE.get(p.role, InfluencePrinciple.CURIOSITY)
+        learned = principle is not None
+        if principle is None:
+            principle = _ROLE_PRINCIPLE.get(p.role, InfluencePrinciple.CURIOSITY)
+        label = principle.value.replace("_", " ")
+        if learned:
+            fallback = (f"Through practice on similar personas, the learning "
+                        f"attacker found that {label} gets the best reaction "
+                        f"from a {p.role}, so it switched to it.")
+        else:
+            fallback = (f"The {label} principle aligns with a {p.role}'s "
+                        f"routine duties, making a simulated approach plausible.")
         rationale = reason(
             prompt=(f"Why would influence principle '{principle.value}' fit a "
                     f"{p.role}? Two sentences, simulation context."),
-            fallback=(f"The {principle.value} principle aligns with a {p.role}'s "
-                      f"routine duties, making a simulated approach plausible."),
+            fallback=fallback,
         )
         case.strategy = StrategySelection(principle=principle, rationale=rationale)
         return case

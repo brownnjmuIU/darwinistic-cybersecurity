@@ -87,7 +87,8 @@ def run_case(persona=None, seed: int | None = None,
         if learner is not None:
             principle = learner.choose(persona.role, channel, epsilon)
             if principle != case.strategy.principle:
-                case.strategy.principle = principle
+                # Re-explain with the learned trick so the rationale matches it.
+                case = StrategyAgent().run(case, principle=principle)
                 case = ContentPlanningAgent().run(case)  # refresh defensive cues
         else:
             principle = case.strategy.principle

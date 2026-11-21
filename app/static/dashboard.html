@@ -60,6 +60,15 @@
   ul{margin:0;padding-left:18px}
   .struct li{font-size:13px;color:var(--muted);margin-bottom:4px}
   .struct b{color:var(--ink)}
+  .pill.shield{background:#16302a;color:var(--ok);border:1px solid var(--ok)}
+  .step .sh{color:var(--ok);text-transform:none}
+  table.dt{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0 14px}
+  table.dt th,table.dt td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left}
+  table.dt th{color:var(--muted);font-weight:600;font-size:12px}
+  table.dt td.num{text-align:right;font-variant-numeric:tabular-nums}
+  .tag{font-size:11px;border-radius:999px;padding:1px 8px;border:1px solid;white-space:nowrap}
+  .tag.hold{color:var(--ok);border-color:var(--ok)}
+  .tag.route{color:var(--warn);border-color:var(--warn)}
   footer{color:var(--muted);font-size:12px;text-align:center;padding:24px}
 </style>
 </head>
@@ -79,7 +88,7 @@
 <div class="wrap">
 
   <div class="controls">
-    <label>How many people <input id="n" type="number" value="6" min="1" max="25"></label>
+    <label>How many people <input id="n" type="number" value="25" min="1" max="25"></label>
     <label>Seed <input id="seed" type="number" value="42"></label>
     <label>People
       <select id="source" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
@@ -89,8 +98,17 @@
     </label>
     <label>Attacker
       <select id="policy" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
+        <option value="learned" selected>Learned (RL)</option>
         <option value="baseline">Fixed guesses</option>
-        <option value="learned">Learned (RL)</option>
+      </select>
+    </label>
+    <label>Defenses
+      <select id="defenses" style="width:auto;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 9px;font-size:14px">
+        <option value="none">None</option>
+        <option value="people">People (training, verify habit)</option>
+        <option value="process">Process (approvals, never ask policy)</option>
+        <option value="technical">Technical (email and SMS filters)</option>
+        <option value="layered">All layers</option>
       </select>
     </label>
     <button id="go">Run the demonstration</button>
@@ -104,6 +122,17 @@
     <h4>Does the attacker get better with practice?</h4>
     <p>Switch the <b>Attacker</b> box above between <b>Fixed guesses</b> and <b>Learned (RL)</b> and run it again: the learned attacker fools more people. The chart shows why. Over thousands of practice runs on made-up people, the learning attacker (blue) steadily improves while the fixed one (orange) never does.</p>
     <img src="/learning_curve.png" alt="Learning curve: RL attacker improves, fixed attacker does not" style="width:100%;border-radius:10px;border:1px solid var(--line);margin-top:6px">
+  </div>
+
+  <div class="guide" id="defense-panel">
+    <h4>Which defenses still work when the attacker evolves?</h4>
+    <p>Turn on a defense with the <b>Defenses</b> box above and run again: fewer people fall for it. But a learning attacker adapts, so we also let it keep practicing against each defense for 2,000 more made-up people and measured whether it found a way around.</p>
+    <p><b>Finding: narrow defenses get routed around; broad ones hold.</b> Every defense in our playbook weakens several tricks on every app, so the attacker had nowhere better to go and won back nothing. A control defense that only blocks one trick (pretending to be someone important) was routed around: the attacker dropped that trick completely and switched to others.</p>
+    <div id="dtable" class="sub">Loading results…</div>
+    <img src="/arms_race.png" alt="Success rate under each defense bundle, before and after the attacker adapts" style="width:100%;border-radius:10px;border:1px solid var(--line);margin-top:6px">
+    <p style="margin-top:14px">When a defense blocks only one trick, the attacker simply stops using it:</p>
+    <img src="/tactic_shift.png" alt="Attacker tactic mix before and after adapting to a narrow defense" style="width:100%;border-radius:10px;border:1px solid var(--line);margin-top:6px">
+    <p class="hint" style="font-size:12px;color:var(--muted);margin-top:10px">Defense strengths are modelling assumptions based on published guidance, not measured effects. The planned participant study is what would measure them. Each result uses 2,000 made-up people; "held up" means any change after adapting was within statistical noise.</p>
   </div>
 </div>
 
@@ -124,6 +153,16 @@ const TRICK = {
   professional_relevance: "sounds like part of your job",
 };
 
+// short names for each defense in the playbook
+const DEF = {
+  tailored_training: "role tailored training",
+  verify_habit: "verify through a second channel",
+  two_person_approval: "two person approval",
+  never_ask_policy: "'we will never ask' policy",
+  sender_auth_banner: "sender authentication banner",
+  link_sandbox: "link sandboxing",
+};
+
 function pretty(p){ return (p||"").replace(/_/g," "); }
 
 function plainOutcome(reason){
@@ -139,6 +178,7 @@ async function run(){
   const seed = document.getElementById('seed').value;
   const policy = document.getElementById('policy').value;
   const source = document.getElementById('source').value;
+  const defenses = document.getElementById('defenses').value;
   const btn = document.getElementById('go');
   const status = document.getElementById('status');
   btn.disabled = true; status.textContent = "Working…";
@@ -148,7 +188,7 @@ async function run(){
       renderReal(rows);
       status.textContent = `${rows.length} real (anonymized) profiles shown below.`;
     } else {
-      const cases = await (await fetch(`/api/run?n=${n}&seed=${seed}&policy=${policy}`)).json();
+      const cases = await (await fetch(`/api/run?n=${n}&seed=${seed}&policy=${policy}&defenses=${defenses}`)).json();
       render(cases);
       status.textContent = `${cases.length} made-up people shown below.`;
     }
@@ -185,6 +225,7 @@ function renderReal(rows){
 
 function render(cases){
   const tally = {engaged:0, reported:0, resisted:0};
+  const attempts = cases.reduce((a,c)=>a + c.evaluation_log.length, 0);
   cases.forEach(c=>{
     const last = c.evaluation_log[c.evaluation_log.length-1];
     if(!last){tally.resisted++;return;}
@@ -196,7 +237,8 @@ function render(cases){
     <div class="stat"><b>${cases.length}</b> people</div>
     <div class="stat" style="color:var(--bad)"><b>${tally.engaged}</b> fell for it</div>
     <div class="stat" style="color:var(--ok)"><b>${tally.reported}</b> reported it</div>
-    <div class="stat" style="color:var(--muted)"><b>${tally.resisted}</b> ignored or resisted</div>`;
+    <div class="stat" style="color:var(--muted)"><b>${tally.resisted}</b> ignored or resisted</div>
+    <div class="stat" title="Total messages the attacker sent before every attack ended. Defenses make attacks end sooner."><b>${attempts}</b> attempts made</div>`;
 
   document.getElementById('cases').innerHTML = cases.map(c=>{
     const p = c.persona;
@@ -205,7 +247,7 @@ function render(cases){
     const missed = est !== truth;
     const steps = c.evaluation_log.map(e=>`
       <div class="step s-${e.simulated_signal}">
-        ${e.channel}<small>${SIG[e.simulated_signal]}</small>
+        ${e.channel}<small>${SIG[e.simulated_signal]}${(e.defenses_applied||[]).length?` <span class="sh" title="${e.defenses_applied.map(d=>DEF[d]||d).join(', ')}">· ${e.defenses_applied.length} defense${e.defenses_applied.length>1?'s':''}</span>`:''}</small>
       </div>`).join('');
     const struct = c.message_plan.structure_elements.map(s=>
       `<li><b>${s.element}</b>: ${s.lever}</li>`).join('');
@@ -220,6 +262,7 @@ function render(cases){
         <span class="pill est">trick used: ${TRICK[c.strategy.principle]||pretty(c.strategy.principle)}</span>
         <span class="pill est">attacker expected: ${LEVEL[est]}</span>
         <span class="pill ${missed?'miss':'truth'}">actually: ${LEVEL[truth]}${missed?' (attacker guessed wrong)':''}</span>
+        ${(c.active_defenses||[]).length?`<span class="pill shield">protected by ${c.active_defenses.length} defense${c.active_defenses.length>1?'s':''}</span>`:''}
       </div>
       <div class="box" style="margin-bottom:12px">
         <h4>The attacker's reasoning</h4>
@@ -250,6 +293,29 @@ function render(cases){
   }).join('');
 }
 
+async function loadDefenses(){
+  try{
+    const d = await (await fetch('/api/defenses')).json();
+    const r = d.arms_race;
+    if(!r || !r.none){ document.getElementById('dtable').textContent = ''; return; }
+    const pct = x => Math.round(100*x) + '%';
+    const label = {people:"People layer", process:"Process layer", technical:"Technical layer",
+      layered:"All layers", control_narrow_authority_block:"Control: block one trick only"};
+    const rows = ["people","process","technical","layered","control_narrow_authority_block"]
+      .filter(k=>r[k]).map(k=>{
+        const x = r[k];
+        const tag = x.adapt_gain_significant && x.adapt_gain > 0
+          ? '<span class="tag route">routed around</span>' : '<span class="tag hold">held up</span>';
+        return `<tr><td>${label[k]}</td><td class="num">${pct(x.frozen.success)}</td>
+          <td class="num">${pct(x.adapted.success)}</td><td class="num">${pct(x.cut_adapted)}</td><td>${tag}</td></tr>`;
+      }).join('');
+    document.getElementById('dtable').innerHTML = `
+      <table class="dt"><thead><tr><th>Defense</th><th style="text-align:right">Fooled, before attacker adapts</th>
+      <th style="text-align:right">Fooled, after attacker adapts</th><th style="text-align:right">Cut vs no defense</th><th></th></tr></thead>
+      <tbody><tr><td>No defense</td><td class="num">${pct(r.none.frozen.success)}</td><td class="num">${pct(r.none.frozen.success)}</td><td class="num">·</td><td></td></tr>${rows}</tbody></table>`;
+  }catch(e){ document.getElementById('dtable').textContent = ''; }
+}
+
 async function setBackend(){
   try{
     const r = await fetch('/api/health');
@@ -260,6 +326,7 @@ async function setBackend(){
 
 document.getElementById('go').addEventListener('click', run);
 setBackend();
+loadDefenses();
 run();
 </script>
 </body>
