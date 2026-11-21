@@ -156,6 +156,7 @@ class EvaluationEntry(BaseModel):
     simulated_signal: EngagementSignal
     next_action: NextAction
     note: str
+    defenses_applied: list[str] = Field(default_factory=list)
 
 
 # ----- The object that flows through the whole pipeline -----------------------
@@ -168,5 +169,6 @@ class PersonaCase(BaseModel):
     message_plan: Optional[MessagePlan] = None
     channel_state: Optional[ChannelState] = None
     evaluation_log: list[EvaluationEntry] = Field(default_factory=list)
+    active_defenses: list[str] = Field(default_factory=list)
     terminal_reason: Optional[str] = None
     episode_reward: float = 0.0

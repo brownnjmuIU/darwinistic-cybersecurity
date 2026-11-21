@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import random
 
+from .defenses import combined_effect
 from .models import (
     Channel,
     EngagementSignal,
@@ -26,11 +27,20 @@ from .models import (
 def respond(persona: Persona,
             principle: InfluencePrinciple,
             channel: Channel,
-            rng: random.Random) -> EngagementSignal:
+            rng: random.Random,
+            defenses=None) -> EngagementSignal:
     r = persona.responder
     # Fit score combines how much the persona responds to this persuasion
     # lever and how reachable they are on this channel.
     fit = r.principle_responsiveness[principle] * r.channel_responsiveness[channel]
+
+    # Defenses (if any) weaken the tactic and make reporting more likely.
+    # With no defenses this is a no-op, so the baseline is unchanged.
+    report_p = r.reports_when_suspicious
+    if defenses:
+        keep, boost, _ = combined_effect(defenses, principle, channel)
+        fit *= keep
+        report_p = 1.0 - (1.0 - report_p) * (1.0 - boost)
 
     roll = rng.random()
     if fit >= 0.45:
@@ -40,6 +50,6 @@ def respond(persona: Persona,
         # Middling fit: hesitates or ignores.
         return EngagementSignal.QUESTIONED if roll < 0.5 else EngagementSignal.IGNORED
     # Poor fit: ignores, and sometimes reports it as suspicious.
-    if roll < r.reports_when_suspicious:
+    if roll < report_p:
         return EngagementSignal.REPORTED
     return EngagementSignal.IGNORED

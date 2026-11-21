@@ -1,5 +1,5 @@
 """
-The six agents.
+The six attacker agents, plus the defender agent.
 
 Each agent is a small class with a single `run(case)` method that reads the
 PersonaCase, fills in its own section, and returns the updated case. They are
@@ -17,6 +17,7 @@ Scope boundary, enforced here as well as in the schema:
 
 from __future__ import annotations
 
+from .defenses import combined_effect, resolve
 from .llm import reason
 from .models import (
     Channel,
@@ -173,14 +174,29 @@ class ProfilingAgent:
 class StrategyAgent:
     """Stage 3: choose a broad influence principle from the taxonomy."""
 
-    def run(self, case: PersonaCase) -> PersonaCase:
+    def run(self, case: PersonaCase,
+            principle: InfluencePrinciple | None = None) -> PersonaCase:
+        """
+        With no principle given, open with the rule-based guess for the role.
+        When the RL attacker picks the principle, pass it in so the written
+        rationale always explains the trick actually being used.
+        """
         p = case.persona
-        principle = _ROLE_PRINCIPLE.get(p.role, InfluencePrinciple.CURIOSITY)
+        learned = principle is not None
+        if principle is None:
+            principle = _ROLE_PRINCIPLE.get(p.role, InfluencePrinciple.CURIOSITY)
+        label = principle.value.replace("_", " ")
+        if learned:
+            fallback = (f"Through practice on similar personas, the learning "
+                        f"attacker found that {label} gets the best reaction "
+                        f"from a {p.role}, so it switched to it.")
+        else:
+            fallback = (f"The {label} principle aligns with a {p.role}'s "
+                        f"routine duties, making a simulated approach plausible.")
         rationale = reason(
             prompt=(f"Why would influence principle '{principle.value}' fit a "
                     f"{p.role}? Two sentences, simulation context."),
-            fallback=(f"The {principle.value} principle aligns with a {p.role}'s "
-                      f"routine duties, making a simulated approach plausible."),
+            fallback=fallback,
         )
         case.strategy = StrategySelection(principle=principle, rationale=rationale)
         return case
@@ -217,3 +233,27 @@ class ChannelAgent:
         ordered = [c for c in _CHANNEL_PRIORITY if c in present]
         case.channel_state = ChannelState(ordered_channels=ordered)
         return case
+
+
+class DefenderAgent:
+    """
+    Stage 0 on the defending side: the organization's prevention measures.
+
+    It holds the active defenses for the run, records them on the case, and
+    reports which ones are in play for a given tactic and channel. The actual
+    effect on the persona is applied in the synthetic responder, the one place
+    an outcome is decided, so the attacker agents never see the defenses
+    directly. They only feel them through worse results, which is exactly the
+    pressure the learning attacker has to adapt to.
+    """
+
+    def __init__(self, defenses=None) -> None:
+        self.defenses = resolve(defenses)
+
+    def run(self, case: PersonaCase) -> PersonaCase:
+        case.active_defenses = [d.id.value for d in self.defenses]
+        return case
+
+    def applied_on(self, principle: InfluencePrinciple,
+                   channel: Channel) -> list[str]:
+        return combined_effect(self.defenses, principle, channel)[2]

@@ -15,6 +15,7 @@ import random
 from .agents import (
     ChannelAgent,
     ContentPlanningAgent,
+    DefenderAgent,
     ProfilingAgent,
     ReconnaissanceAgent,
     StrategyAgent,
@@ -48,7 +49,8 @@ def _decide_next(signal: EngagementSignal,
 
 
 def run_case(persona=None, seed: int | None = None,
-             learner=None, epsilon: float = 0.0) -> PersonaCase:
+             learner=None, epsilon: float = 0.0,
+             defenses=None) -> PersonaCase:
     rng = random.Random(seed)
     if persona is None:
         persona = generate_persona(seed=seed)
@@ -61,6 +63,8 @@ def run_case(persona=None, seed: int | None = None,
     case = StrategyAgent().run(case)
     case = ContentPlanningAgent().run(case)
     case = ChannelAgent().run(case)
+    defender = DefenderAgent(defenses)
+    case = defender.run(case)
 
     cs = case.channel_state
     if not cs.ordered_channels:
@@ -83,12 +87,14 @@ def run_case(persona=None, seed: int | None = None,
         if learner is not None:
             principle = learner.choose(persona.role, channel, epsilon)
             if principle != case.strategy.principle:
-                case.strategy.principle = principle
+                # Re-explain with the learned trick so the rationale matches it.
+                case = StrategyAgent().run(case, principle=principle)
                 case = ContentPlanningAgent().run(case)  # refresh defensive cues
         else:
             principle = case.strategy.principle
 
-        signal = respond(persona, principle, channel, rng)
+        applied = defender.applied_on(principle, channel)
+        signal = respond(persona, principle, channel, rng, defender.defenses)
 
         reward = REWARD[signal]
         case.episode_reward += reward
@@ -102,6 +108,7 @@ def run_case(persona=None, seed: int | None = None,
         case.evaluation_log.append(EvaluationEntry(
             round_no=round_no, channel=channel, principle=principle,
             simulated_signal=signal, next_action=action, note=note,
+            defenses_applied=applied,
         ))
 
         if action == NextAction.STOP:
@@ -120,7 +127,9 @@ def run_case(persona=None, seed: int | None = None,
 
 
 def run_batch(n: int, seed: int | None = None,
-              learner=None, epsilon: float = 0.0) -> list[PersonaCase]:
+              learner=None, epsilon: float = 0.0,
+              defenses=None) -> list[PersonaCase]:
     base = random.Random(seed)
     return [run_case(seed=base.randint(0, 1_000_000),
-                     learner=learner, epsilon=epsilon) for _ in range(n)]
+                     learner=learner, epsilon=epsilon, defenses=defenses)
+            for _ in range(n)]

@@ -3,9 +3,13 @@ FastAPI service.
 
   GET /                     -> the dashboard page
   GET /api/health           -> liveness + reasoning backend + whether a trained policy is loaded
-  GET /api/run?n=5&seed=42&policy=baseline  -> run the simulation, return full traces as JSON
+  GET /api/run?n=5&seed=42&policy=baseline&defenses=none
+                            -> run the simulation, return full traces as JSON
                                policy=learned uses the trained RL policy (if present)
+                               defenses = none | people | process | technical | layered
+  GET /api/defenses         -> the defense playbook plus the arms race results
   GET /learning_curve.png   -> the training chart, for the dashboard
+  GET /arms_race.png, /tactic_shift.png -> the defense experiment charts
 
 Start command (unchanged):
     uvicorn app.api:app --host 0.0.0.0 --port $PORT
@@ -17,8 +21,10 @@ import copy
 import json
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
+
+from .defenses import BUNDLES, playbook_matrix
 
 from .llm import active_backend
 from .orchestrator import run_batch
@@ -47,14 +53,19 @@ def health() -> dict:
 
 
 @app.get("/api/run")
-def api_run(n: int = 5, seed: int = 42, policy: str = "baseline") -> JSONResponse:
+def api_run(n: int = 5, seed: int = 42, policy: str = "baseline",
+            defenses: str = "none") -> JSONResponse:
     n = max(1, min(n, 25))  # keep the free tier happy
+    if defenses not in BUNDLES:
+        raise HTTPException(400, f"defenses must be one of {list(BUNDLES)}")
+    defs = None if defenses == "none" else defenses
     if policy == "learned" and _HAS_POLICY:
         # deep-copy so serving never mutates the shared trained policy
         learner = copy.deepcopy(_LEARNER)
-        cases = run_batch(n, seed=seed, learner=learner, epsilon=0.0)
+        cases = run_batch(n, seed=seed, learner=learner, epsilon=0.0,
+                          defenses=defs)
     else:
-        cases = run_batch(n, seed=seed)
+        cases = run_batch(n, seed=seed, defenses=defs)
     return JSONResponse([c.model_dump(mode="json") for c in cases])
 
 
@@ -89,6 +100,24 @@ def api_real(policy: str = "learned"):
             "defense": case.message_plan.defensive_annotation,
         })
     return JSONResponse(out)
+
+
+@app.get("/api/defenses")
+def api_defenses() -> JSONResponse:
+    """The playbook and the precomputed arms race results (python arms_race.py)."""
+    path = _ROOT / "arms_race_results.json"
+    results = json.load(open(path)) if path.exists() else {}
+    return JSONResponse({"playbook": playbook_matrix(), "arms_race": results})
+
+
+@app.get("/arms_race.png")
+def arms_race_png() -> FileResponse:
+    return FileResponse(_ROOT / "arms_race.png")
+
+
+@app.get("/tactic_shift.png")
+def tactic_shift_png() -> FileResponse:
+    return FileResponse(_ROOT / "tactic_shift.png")
 
 
 @app.get("/learning_curve.png")

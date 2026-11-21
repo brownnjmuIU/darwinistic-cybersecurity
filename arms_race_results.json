@@ -1,0 +1,572 @@
+{
+  "none": {
+    "fixed": {
+      "success": 0.2325,
+      "success_se": 0.009445733163709422,
+      "reported": 0.6305,
+      "tactic_mix": {
+        "urgency": 0.09510575883896866,
+        "authority": 0.2525860737995986,
+        "curiosity": 0.21553188204415624,
+        "reciprocity": 0.11332406978539447,
+        "social_proof": 0.10606762389995368,
+        "professional_relevance": 0.21738459163192836
+      }
+    },
+    "frozen": {
+      "success": 0.575,
+      "success_se": 0.011053845484717072,
+      "reported": 0.351,
+      "tactic_mix": {
+        "urgency": 0.21322033898305084,
+        "authority": 0.2088135593220339,
+        "curiosity": 0.13576271186440678,
+        "reciprocity": 0.10983050847457627,
+        "social_proof": 0.22016949152542373,
+        "professional_relevance": 0.11220338983050847
+      }
+    },
+    "adapted": {
+      "success": 0.575,
+      "success_se": 0.011053845484717072,
+      "reported": 0.351,
+      "tactic_mix": {
+        "urgency": 0.21322033898305084,
+        "authority": 0.2088135593220339,
+        "curiosity": 0.13576271186440678,
+        "reciprocity": 0.10983050847457627,
+        "social_proof": 0.22016949152542373,
+        "professional_relevance": 0.11220338983050847
+      }
+    },
+    "cut_frozen": 0.0,
+    "cut_adapted": 0.0,
+    "recovery": 0.0,
+    "adapt_gain": 0.0,
+    "adapt_gain_significant": false
+  },
+  "people": {
+    "fixed": {
+      "success": 0.087,
+      "success_se": 0.006302023484564303,
+      "reported": 0.8125,
+      "tactic_mix": {
+        "urgency": 0.10170648464163823,
+        "authority": 0.23737201365187713,
+        "curiosity": 0.2165529010238908,
+        "reciprocity": 0.1075085324232082,
+        "social_proof": 0.10870307167235495,
+        "professional_relevance": 0.22815699658703073
+      }
+    },
+    "frozen": {
+      "success": 0.315,
+      "success_se": 0.010386890776358439,
+      "reported": 0.6055,
+      "tactic_mix": {
+        "urgency": 0.2114689709347997,
+        "authority": 0.21429693637077768,
+        "curiosity": 0.12804399057344854,
+        "reciprocity": 0.11201885310290652,
+        "social_proof": 0.21916732128829536,
+        "professional_relevance": 0.11500392772977219
+      }
+    },
+    "adapted": {
+      "success": 0.3155,
+      "success_se": 0.010391336535787877,
+      "reported": 0.585,
+      "tactic_mix": {
+        "urgency": 0.22833669198573864,
+        "authority": 0.1685010075957216,
+        "curiosity": 0.13300263525034878,
+        "reciprocity": 0.14664393117346147,
+        "social_proof": 0.2314369865137188,
+        "professional_relevance": 0.09207874748101069
+      }
+    },
+    "cut_frozen": 0.4521739130434782,
+    "cut_adapted": 0.45130434782608686,
+    "recovery": 0.0019230769230769251,
+    "adapt_gain": 0.0005000000000000004,
+    "adapt_gain_significant": false
+  },
+  "process": {
+    "fixed": {
+      "success": 0.0895,
+      "success_se": 0.006383171233799075,
+      "reported": 0.793,
+      "tactic_mix": {
+        "urgency": 0.1023391812865497,
+        "authority": 0.23716699155295645,
+        "curiosity": 0.21751137102014295,
+        "reciprocity": 0.1046133853151397,
+        "social_proof": 0.10769980506822611,
+        "professional_relevance": 0.23066926575698504
+      }
+    },
+    "frozen": {
+      "success": 0.293,
+      "success_se": 0.010177204920802175,
+      "reported": 0.606,
+      "tactic_mix": {
+        "urgency": 0.21077916228794474,
+        "authority": 0.21843567031977182,
+        "curiosity": 0.1250562978531752,
+        "reciprocity": 0.11860081068908572,
+        "social_proof": 0.21408196967422308,
+        "professional_relevance": 0.11304608917579943
+      }
+    },
+    "adapted": {
+      "success": 0.2755,
+      "success_se": 0.009989988738732391,
+      "reported": 0.6115,
+      "tactic_mix": {
+        "urgency": 0.18614008941877794,
+        "authority": 0.2128166915052161,
+        "curiosity": 0.16512667660208644,
+        "reciprocity": 0.13576751117734726,
+        "social_proof": 0.23144560357675112,
+        "professional_relevance": 0.06870342771982116
+      }
+    },
+    "cut_frozen": 0.49043478260869566,
+    "cut_adapted": 0.5208695652173913,
+    "recovery": -0.06205673758865235,
+    "adapt_gain": -0.01749999999999996,
+    "adapt_gain_significant": false
+  },
+  "technical": {
+    "fixed": {
+      "success": 0.184,
+      "success_se": 0.008664409962599876,
+      "reported": 0.682,
+      "tactic_mix": {
+        "urgency": 0.09807934508816121,
+        "authority": 0.25488035264483627,
+        "curiosity": 0.21079974811083124,
+        "reciprocity": 0.10972921914357682,
+        "social_proof": 0.10610831234256927,
+        "professional_relevance": 0.22040302267002518
+      }
+    },
+    "frozen": {
+      "success": 0.4925,
+      "success_se": 0.011179082028503056,
+      "reported": 0.4365,
+      "tactic_mix": {
+        "urgency": 0.20705421293272372,
+        "authority": 0.21407576747224036,
+        "curiosity": 0.1348791639451339,
+        "reciprocity": 0.11218158066623123,
+        "social_proof": 0.21750489875898105,
+        "professional_relevance": 0.11430437622468975
+      }
+    },
+    "adapted": {
+      "success": 0.5075,
+      "success_se": 0.011179082028503056,
+      "reported": 0.4085,
+      "tactic_mix": {
+        "urgency": 0.22144,
+        "authority": 0.20288,
+        "curiosity": 0.11504,
+        "reciprocity": 0.13664,
+        "social_proof": 0.21216,
+        "professional_relevance": 0.11184
+      }
+    },
+    "cut_frozen": 0.14347826086956517,
+    "cut_adapted": 0.11739130434782608,
+    "recovery": 0.18181818181818138,
+    "adapt_gain": 0.014999999999999958,
+    "adapt_gain_significant": false
+  },
+  "layered": {
+    "fixed": {
+      "success": 0.008,
+      "success_se": 0.0019919839356781974,
+      "reported": 0.948,
+      "tactic_mix": {
+        "urgency": 0.09422082302675962,
+        "authority": 0.22689453564200585,
+        "curiosity": 0.2156510006746121,
+        "reciprocity": 0.1158084101641556,
+        "social_proof": 0.11805711715763437,
+        "professional_relevance": 0.22936811333483248
+      }
+    },
+    "frozen": {
+      "success": 0.0485,
+      "success_se": 0.004803527349771208,
+      "reported": 0.8845,
+      "tactic_mix": {
+        "urgency": 0.2034341172079134,
+        "authority": 0.18215752146323255,
+        "curiosity": 0.13381858902575589,
+        "reciprocity": 0.12224710712952594,
+        "social_proof": 0.24113475177304963,
+        "professional_relevance": 0.11720791340052258
+      }
+    },
+    "adapted": {
+      "success": 0.045,
+      "success_se": 0.004635461142108733,
+      "reported": 0.89,
+      "tactic_mix": {
+        "urgency": 0.2104445738691516,
+        "authority": 0.045622209279751504,
+        "curiosity": 0.1807416035721219,
+        "reciprocity": 0.11395845466899632,
+        "social_proof": 0.2847990681421083,
+        "professional_relevance": 0.1644340904678703
+      }
+    },
+    "cut_frozen": 0.9156521739130434,
+    "cut_adapted": 0.9217391304347826,
+    "recovery": -0.006647673314339987,
+    "adapt_gain": -0.003500000000000003,
+    "adapt_gain_significant": false
+  },
+  "tailored_training": {
+    "fixed": {
+      "success": 0.155,
+      "success_se": 0.008092434738692676,
+      "reported": 0.7315,
+      "tactic_mix": {
+        "urgency": 0.10029354207436399,
+        "authority": 0.2527723418134377,
+        "curiosity": 0.21771037181996086,
+        "reciprocity": 0.11024135681669928,
+        "social_proof": 0.1058382257012394,
+        "professional_relevance": 0.21314416177429876
+      }
+    },
+    "frozen": {
+      "success": 0.455,
+      "success_se": 0.011134967444945675,
+      "reported": 0.477,
+      "tactic_mix": {
+        "urgency": 0.20513242309590393,
+        "authority": 0.20694193123869056,
+        "curiosity": 0.13456160552722488,
+        "reciprocity": 0.11367001151505182,
+        "social_proof": 0.22421450896529035,
+        "professional_relevance": 0.11547951965783847
+      }
+    },
+    "adapted": {
+      "success": 0.435,
+      "success_se": 0.01108546345445241,
+      "reported": 0.479,
+      "tactic_mix": {
+        "urgency": 0.19916007107090938,
+        "authority": 0.24147956711355192,
+        "curiosity": 0.13228880633177192,
+        "reciprocity": 0.10741398804716525,
+        "social_proof": 0.2157971248586658,
+        "professional_relevance": 0.10386044257793571
+      }
+    },
+    "cut_frozen": 0.20869565217391295,
+    "cut_adapted": 0.24347826086956514,
+    "recovery": -0.1666666666666669,
+    "name": "Role tailored awareness training",
+    "layer": "people",
+    "effort": 2,
+    "adapt_gain": -0.020000000000000018,
+    "adapt_gain_significant": false
+  },
+  "verify_habit": {
+    "fixed": {
+      "success": 0.147,
+      "success_se": 0.007918049002121673,
+      "reported": 0.7115,
+      "tactic_mix": {
+        "urgency": 0.10415707930664213,
+        "authority": 0.249117962877742,
+        "curiosity": 0.2126092959042798,
+        "reciprocity": 0.10845221659763768,
+        "social_proof": 0.10292989722350054,
+        "professional_relevance": 0.22273354809019788
+      }
+    },
+    "frozen": {
+      "success": 0.4425,
+      "success_se": 0.01110616382915361,
+      "reported": 0.47,
+      "tactic_mix": {
+        "urgency": 0.213768115942029,
+        "authority": 0.22258979206049148,
+        "curiosity": 0.12775677378701952,
+        "reciprocity": 0.10806553245116572,
+        "social_proof": 0.21140516698172654,
+        "professional_relevance": 0.11641461877756774
+      }
+    },
+    "adapted": {
+      "success": 0.4415,
+      "success_se": 0.011103552359492884,
+      "reported": 0.4575,
+      "tactic_mix": {
+        "urgency": 0.20455609299422686,
+        "authority": 0.15821501014198783,
+        "curiosity": 0.11671087533156499,
+        "reciprocity": 0.18598845373693243,
+        "social_proof": 0.24590419722265563,
+        "professional_relevance": 0.08862537057263224
+      }
+    },
+    "cut_frozen": 0.23043478260869554,
+    "cut_adapted": 0.23217391304347823,
+    "recovery": -0.007547169811320764,
+    "name": "Verify through a second channel",
+    "layer": "people",
+    "effort": 2,
+    "adapt_gain": -0.0010000000000000009,
+    "adapt_gain_significant": false
+  },
+  "two_person_approval": {
+    "fixed": {
+      "success": 0.146,
+      "success_se": 0.007895695029571494,
+      "reported": 0.7,
+      "tactic_mix": {
+        "urgency": 0.10110155424777426,
+        "authority": 0.2542628640410442,
+        "curiosity": 0.21020069413007395,
+        "reciprocity": 0.11000452693526483,
+        "social_proof": 0.10321412403802625,
+        "professional_relevance": 0.2212162366078165
+      }
+    },
+    "frozen": {
+      "success": 0.4265,
+      "success_se": 0.011058882176784416,
+      "reported": 0.479,
+      "tactic_mix": {
+        "urgency": 0.2171623296158612,
+        "authority": 0.2179368029739777,
+        "curiosity": 0.1290272614622057,
+        "reciprocity": 0.11028500619578686,
+        "social_proof": 0.20817843866171004,
+        "professional_relevance": 0.11741016109045849
+      }
+    },
+    "adapted": {
+      "success": 0.3985,
+      "success_se": 0.010947551096021428,
+      "reported": 0.491,
+      "tactic_mix": {
+        "urgency": 0.12175249807840123,
+        "authority": 0.24504227517294389,
+        "curiosity": 0.13466564181398924,
+        "reciprocity": 0.11898539584934666,
+        "social_proof": 0.22136817832436587,
+        "professional_relevance": 0.15818601076095312
+      }
+    },
+    "cut_frozen": 0.2582608695652173,
+    "cut_adapted": 0.30695652173913035,
+    "recovery": -0.1885521885521884,
+    "name": "Two person approval and a cooling off delay",
+    "layer": "process",
+    "effort": 3,
+    "adapt_gain": -0.02799999999999997,
+    "adapt_gain_significant": false
+  },
+  "never_ask_policy": {
+    "fixed": {
+      "success": 0.1555,
+      "success_se": 0.008103078118838545,
+      "reported": 0.7165,
+      "tactic_mix": {
+        "urgency": 0.09887676000632811,
+        "authority": 0.25296630280018984,
+        "curiosity": 0.21499762695775984,
+        "reciprocity": 0.10789432051890524,
+        "social_proof": 0.10488846701471286,
+        "professional_relevance": 0.2203765227021041
+      }
+    },
+    "frozen": {
+      "success": 0.448,
+      "success_se": 0.011119712226492195,
+      "reported": 0.4725,
+      "tactic_mix": {
+        "urgency": 0.20163095618803967,
+        "authority": 0.2129836904381196,
+        "curiosity": 0.13063639270866645,
+        "reciprocity": 0.11704509114166933,
+        "social_proof": 0.2219379597057883,
+        "professional_relevance": 0.11576590981771666
+      }
+    },
+    "adapted": {
+      "success": 0.4495,
+      "success_se": 0.011123168388548292,
+      "reported": 0.455,
+      "tactic_mix": {
+        "urgency": 0.2320589157004074,
+        "authority": 0.205421497963021,
+        "curiosity": 0.13287370730178627,
+        "reciprocity": 0.11908492635537449,
+        "social_proof": 0.19335631463491068,
+        "professional_relevance": 0.11720463804450015
+      }
+    },
+    "cut_frozen": 0.2208695652173912,
+    "cut_adapted": 0.21826086956521729,
+    "recovery": 0.01181102362204726,
+    "name": "Published 'we will never ask' policy",
+    "layer": "process",
+    "effort": 1,
+    "adapt_gain": 0.0015000000000000013,
+    "adapt_gain_significant": false
+  },
+  "sender_auth_banner": {
+    "fixed": {
+      "success": 0.212,
+      "success_se": 0.009139365404665688,
+      "reported": 0.6515,
+      "tactic_mix": {
+        "urgency": 0.09606715373853568,
+        "authority": 0.2530701072594435,
+        "curiosity": 0.21638426861495413,
+        "reciprocity": 0.11270013990362195,
+        "social_proof": 0.10415047411782993,
+        "professional_relevance": 0.2176278563656148
+      }
+    },
+    "frozen": {
+      "success": 0.5375,
+      "success_se": 0.011148850837642416,
+      "reported": 0.3915,
+      "tactic_mix": {
+        "urgency": 0.20591656971912914,
+        "authority": 0.21638690377264416,
+        "curiosity": 0.13328901445903274,
+        "reciprocity": 0.10802725610769487,
+        "social_proof": 0.22120658135283364,
+        "professional_relevance": 0.11517367458866545
+      }
+    },
+    "adapted": {
+      "success": 0.545,
+      "success_se": 0.011134967444945675,
+      "reported": 0.3755,
+      "tactic_mix": {
+        "urgency": 0.22086190009794318,
+        "authority": 0.1950701926216128,
+        "curiosity": 0.1258570029382958,
+        "reciprocity": 0.11051256937642834,
+        "social_proof": 0.2175971269996735,
+        "professional_relevance": 0.13010120796604635
+      }
+    },
+    "cut_frozen": 0.06521739130434778,
+    "cut_adapted": 0.05217391304347807,
+    "recovery": 0.2000000000000018,
+    "name": "Sender authentication and external sender banner",
+    "layer": "technical",
+    "effort": 3,
+    "adapt_gain": 0.007500000000000062,
+    "adapt_gain_significant": false
+  },
+  "link_sandbox": {
+    "fixed": {
+      "success": 0.2045,
+      "success_se": 0.009018862178789517,
+      "reported": 0.6595,
+      "tactic_mix": {
+        "urgency": 0.09604872715914416,
+        "authority": 0.25503670154615027,
+        "curiosity": 0.2114633765422458,
+        "reciprocity": 0.11104169920349836,
+        "social_proof": 0.1057316882711229,
+        "professional_relevance": 0.2206778072778385
+      }
+    },
+    "frozen": {
+      "success": 0.528,
+      "success_se": 0.011162795348836239,
+      "reported": 0.3995,
+      "tactic_mix": {
+        "urgency": 0.20765661252900233,
+        "authority": 0.20566788200198874,
+        "curiosity": 0.1370566788200199,
+        "reciprocity": 0.1148491879350348,
+        "social_proof": 0.21726881007623466,
+        "professional_relevance": 0.11750082863771959
+      }
+    },
+    "adapted": {
+      "success": 0.5245,
+      "success_se": 0.011166909823223254,
+      "reported": 0.39,
+      "tactic_mix": {
+        "urgency": 0.2578955981017837,
+        "authority": 0.20225822287677958,
+        "curiosity": 0.10440189821633121,
+        "reciprocity": 0.13516609392898052,
+        "social_proof": 0.21011291114383898,
+        "professional_relevance": 0.09016527573228604
+      }
+    },
+    "cut_frozen": 0.08173913043478254,
+    "cut_adapted": 0.08782608695652172,
+    "recovery": -0.07446808510638434,
+    "name": "Link and attachment sandboxing with lure detection",
+    "layer": "technical",
+    "effort": 4,
+    "adapt_gain": -0.0035000000000000586,
+    "adapt_gain_significant": false
+  },
+  "control_narrow_authority_block": {
+    "fixed": {
+      "success": 0.179,
+      "success_se": 0.008572018432084709,
+      "reported": 0.6945,
+      "tactic_mix": {
+        "urgency": 0.09751464302675321,
+        "authority": 0.23365521608358397,
+        "curiosity": 0.2209909767294602,
+        "reciprocity": 0.1161943960740858,
+        "social_proof": 0.10875415545353807,
+        "professional_relevance": 0.22289061263257876
+      }
+    },
+    "frozen": {
+      "success": 0.4675,
+      "success_se": 0.011156696419639641,
+      "reported": 0.459,
+      "tactic_mix": {
+        "urgency": 0.2182282793867121,
+        "authority": 0.19642248722316866,
+        "curiosity": 0.13577512776831346,
+        "reciprocity": 0.11226575809199318,
+        "social_proof": 0.22453151618398637,
+        "professional_relevance": 0.11277683134582624
+      }
+    },
+    "adapted": {
+      "success": 0.5035,
+      "success_se": 0.011180065965816123,
+      "reported": 0.4065,
+      "tactic_mix": {
+        "urgency": 0.29415659658996857,
+        "authority": 0.0,
+        "curiosity": 0.1458367819897368,
+        "reciprocity": 0.14848535010759809,
+        "social_proof": 0.31170336037079954,
+        "professional_relevance": 0.09981791094189704
+      }
+    },
+    "cut_frozen": 0.18695652173913035,
+    "cut_adapted": 0.12434782608695649,
+    "recovery": 0.33488372093023205,
+    "adapt_gain": 0.03599999999999992,
+    "adapt_gain_significant": true
+  }
+}
